@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Game - ระบบเกมส์ตอบคำถามออนไลน์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .countdownPulse {
+            animation: countdownPulse 1s ease-in-out;
+        }
+        
+        @keyframes countdownPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .countdownFadeOut {
+            animation: countdownFadeOut 0.5s ease-out forwards;
+        }
+        
+        @keyframes countdownFadeOut {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0; }
+        }
+        
+        .rocket-launch {
+            animation: rocketLaunch 1s ease-out forwards;
+        }
+        
+        @keyframes rocketLaunch {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+        
+        .progress-bar {
+            transition: width 1s linear;
+        }
+        
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .avatar-option:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+        }
+        
+        .avatar-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500">
+    <!-- Header -->
+    <header class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-gamepad text-3xl text-purple-600 bounce"></i>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">First Game</h1>
+                        <p class="text-xs text-gray-500 mt-1">พัฒนาโดย อาจารย์จตุพร หนูสวัสดิ์</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="teacherBtn" onclick="showTeacherView()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i>ครู
+                    </button>
+                    <button id="studentBtn" onclick="showStudentView()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-user-graduate mr-2"></i>นักเรียน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Home Screen -->
+        <div id="homeScreen" class="text-center">
+            <div class="bg-white rounded-3xl shadow-2xl p-12 max-w-4xl mx-auto">
+                <i class="fas fa-trophy text-8xl text-yellow-500 mb-6 pulse"></i>
+                <h2 class="text-5xl font-bold text-gray-800 mb-4">ยินดีต้อนรับสู่ First Game</h2>
+                <p class="text-xl bg-gradient-to-r from-purple-600 via-pink-500 via-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 to-indigo-600 bg-clip-text text-transparent font-bold mb-8 animate-pulse">ระบบเกมส์ตอบคำถามออนไลน์</p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-8 text-white card-hover cursor-pointer" onclick="showTeacherView()">
+                        <i class="fas fa-chalkboard-teacher text-6xl mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">สำหรับครู</h3>
+                        <p>สร้างและจัดการเกมส์ตอบคำถาม</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-8 text-white card-hover cursor-pointer" onclick="showStudentView()">
+                        <i class="fas fa-user-graduate text-6xl mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2">สำหรับนักเรียน</h3>
+                        <p>เข้าร่วมเกมส์และตอบคำถาม</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher View -->
+        <div id="teacherView" class="hidden min-h-screen">
+            <!-- Teacher Menu -->
+            <div id="teacherMenu" class="bg-white rounded-3xl shadow-2xl p-12 min-h-[85vh] max-w-6xl mx-auto">
+                <div class="text-center mb-12">
+                    <i class="fas fa-chalkboard-teacher text-8xl text-blue-600 mb-6"></i>
+                    <h2 class="text-5xl font-bold text-gray-800 mb-4">หน้าครู</h2>
+                    <p class="text-xl text-gray-600">จัดการเกมส์ตอบคำถามออนไลน์</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <button onclick="createNewGame()" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-12 rounded-3xl card-hover transform transition-all duration-300 hover:scale-105">
+                        <i class="fas fa-plus-circle text-6xl mb-6"></i>
+                        <h3 class="text-3xl font-bold mb-2">สร้างเกมส์ใหม่</h3>
+                        <p class="text-lg opacity-90">เริ่มต้นสร้างเกมส์ใหม่</p>
+                    </button>
+                    <button onclick="showGameList()" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-12 rounded-3xl card-hover transform transition-all duration-300 hover:scale-105">
+                        <i class="fas fa-list text-6xl mb-6"></i>
+                        <h3 class="text-3xl font-bold mb-2">รายวิชาเก่า</h3>
+                        <p class="text-lg opacity-90">จัดการเกมส์ที่มีอยู่</p>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <button onclick="showHome()" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300">
+                        <i class="fas fa-home mr-2"></i>กลับหน้าแรก
+                    </button>
+                </div>
+            </div>
+
+            <!-- Create Game Form -->
+            <div id="createGameForm" class="hidden bg-white rounded-3xl shadow-2xl p-12 min-h-[90vh] max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                    <i class="fas fa-gamepad text-purple-600 mr-3"></i>สร้างเกมส์ใหม่
+                </h2>
+                
+                <form id="gameForm" class="space-y-6">
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">ชื่อรายวิชา</label>
+                        <input type="text" id="subjectName" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">URL ไฟล์งาน</label>
+                        <input type="url" id="fileUrl" value="https://kidneybidi.my.canva.site/bcngame" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg">
+                    </div>
+                    
+                    <div class="border-t-2 border-gray-200 pt-6">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">เพิ่มคำถาม</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">ประเภทคำถาม</label>
+                                <select id="questionType" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg">
+                                    <option value="text">ข้อความ</option>
+                                    <option value="image">รูปภาพ</option>
+                                    <option value="video">วิดีโอ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">การจับเวลา</label>
+                                <select id="timeLimit" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg">
+                                    <option value="30">30 วินาที</option>
+                                    <option value="60">60 วินาที</option>
+                                    <option value="90">90 วินาที</option>
+                                    <option value="0">ไม่จับเวลา</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-2xl font-bold text-gray-800 mb-2" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">คำถาม</label>
+                            <textarea id="questionText" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg" rows="3" required></textarea>
+                        </div>
+                        
+                        <div id="imageUpload" class="hidden mb-4">
+                            <label class="block text-lg font-medium text-gray-700 mb-2">อัปโหลดไฟล์</label>
+                            <input type="file" id="questionImage" accept="image/*" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none">
+                            <div id="imagePreview" class="mt-4 hidden">
+                                <img id="previewImg" class="max-w-xs rounded-xl shadow-lg">
+                                <video id="previewVideo" class="max-w-xs rounded-xl shadow-lg hidden" controls>
+                                    <source id="previewVideoSource" type="video/mp4">
+                                    เบราว์เซอร์ไม่รองรับการเล่นวิดีโอ
+                                </video>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">ตัวเลือก A</label>
+                                <input type="text" id="optionA" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">ตัวเลือก B</label>
+                                <input type="text" id="optionB" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">ตัวเลือก C</label>
+                                <input type="text" id="optionC" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:outline-none text-lg">
+                            </div>
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">ตัวเลือก D</label>
+                                <input type="text" id="optionD" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg">
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">คำตอบที่ถูก</label>
+                                <select id="correctAnswer" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg" required>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-lg font-medium text-gray-700 mb-2">คะแนน</label>
+                                <select id="questionScore" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-lg">
+                                    <option value="1">1 คะแนน</option>
+                                    <option value="2">2 คะแนน</option>
+                                    <option value="3">3 คะแนน</option>
+                                    <option value="4">4 คะแนน</option>
+                                    <option value="5" selected>5 คะแนน</option>
+                                    <option value="6">6 คะแนน</option>
+                                    <option value="7">7 คะแนน</option>
+                                    <option value="8">8 คะแนน</option>
+                                    <option value="9">9 คะแนน</option>
+                                    <option value="10">10 คะแนน</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="addQuestion()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl text-xl font-bold hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105">
+                            <i class="fas fa-plus mr-2"></i>เพิ่มคำถาม
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="questionsList" class="mt-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">คำถามที่เพิ่มแล้ว</h3>
+                    <div id="questionsContainer" class="space-y-4"></div>
+                </div>
+                
+                <div class="flex space-x-4 mt-8">
+                    <button onclick="saveGame()" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-xl text-xl font-bold hover:from-blue-600 hover:to-blue-700 transition-all duration-300">
+                        <i class="fas fa-save mr-2"></i>บันทึกเกมส์
+                    </button>
+                    <button onclick="showTeacherMenu()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-4 rounded-xl">
+                        <i class="fas fa-arrow-left mr-2"></i>กลับ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game List -->
+            <div id="gameList" class="hidden bg-white rounded-3xl shadow-2xl p-12 min-h-[85vh] max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">
+                        <i class="fas fa-list text-orange-600 mr-3"></i>รายวิชาเก่า
+                    </h2>
+                    <button onclick="displayGames()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                        <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
+                    </button>
+                </div>
+                <div id="gamesContainer" class="space-y-4 mb-6"></div>
+                <div class="flex space-x-4">
+                    <button onclick="createNewGame()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full">
+                        <i class="fas fa-plus mr-2"></i>สร้างเกมส์ใหม่
+                    </button>
+                    <button onclick="showTeacherMenu()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full">
+                        <i class="fas fa-arrow-left mr-2"></i>กลับ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lobby -->
+            <div id="lobby" class="hidden bg-white rounded-3xl shadow-2xl p-12 min-h-[85vh] max-w-7xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">ห้องรอผู้เล่น</h2>
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl mb-6">
+                        <h3 class="text-2xl font-bold mb-2">รหัสเกมส์</h3>
+                        <div id="gameCode" class="text-6xl font-bold tracking-wider"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-4">QR Code สำหรับนักเรียน</h3>
+                        <div id="qrCode" class="flex justify-center"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">ผู้เล่นที่เข้าร่วม (<span id="playerCount">0</span> คน)</h3>
+                    <div id="playersList" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button id="startGameBtn" onclick="startGame()" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl text-xl font-bold hover:from-green-600 hover:to-green-700 transition-all duration-300 disabled:opacity-50" disabled>
+                        <i class="fas fa-play mr-2"></i>เริ่มเกมส์
+                    </button>
+                    <button onclick="showTeacherMenu()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-4 rounded-xl">
+                        <i class="fas fa-arrow-left mr-2"></i>กลับ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Countdown Screen -->
+            <div id="countdownScreen" class="hidden fixed inset-0 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center z-50">
+                <div class="text-center text-white">
+                    <div id="countdownIcon" class="text-9xl mb-8">
+                        <i class="fas fa-play bounce"></i>
+                    </div>
+                    <div id="countdownNumber" class="text-9xl font-bold mb-4"></div>
+                    <div id="countdownText" class="text-3xl font-bold mb-8"></div>
+                    <button onclick="skipCountdown()" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-full text-lg font-bold transition-all duration-300">
+                        <i class="fas fa-forward mr-2"></i>ข้าม
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="gameScreen" class="hidden min-h-screen">
+                <!-- Game Control Panel -->
+                <div class="bg-gray-800 text-white p-4 rounded-2xl mb-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <button onclick="showTeacherMenu()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </button>
+                        <button onclick="pauseGame()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-pause mr-2"></i>Pause
+                        </button>
+                    </div>
+                    <div class="text-lg font-bold">
+                        <i class="fas fa-gamepad mr-2"></i>ควบคุมเกมส์
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="nextQuestionBtn" onclick="nextQuestion()" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-forward mr-2"></i>Next
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Question Display -->
+                <div id="questionDisplay" class="bg-white rounded-3xl shadow-2xl p-12 mb-6 min-h-[80vh] max-w-7xl mx-auto">
+                    <div class="text-center mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-bold text-gray-600">คำถามที่ <span id="currentQuestionNum">1</span></h3>
+                            <div id="timeRemaining" class="text-2xl font-bold text-red-600"></div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
+                            <div id="timeProgress" class="bg-gradient-to-r from-green-500 to-red-500 h-3 rounded-full progress-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <h2 id="questionTitle" class="text-4xl font-bold text-gray-800 mb-6" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.1);"></h2>
+                        <div id="questionImageContainer" class="hidden mb-6">
+                            <img id="questionImg" class="max-w-md mx-auto rounded-xl shadow-lg">
+                        </div>
+                        <div id="optionsContainer" class="grid grid-cols-2 gap-4 max-w-4xl mx-auto">
+                            <div class="bg-red-500 text-white p-6 rounded-xl text-xl font-bold">A. <span id="optA"></span></div>
+                            <div class="bg-blue-500 text-white p-6 rounded-xl text-xl font-bold">B. <span id="optB"></span></div>
+                            <div class="bg-yellow-500 text-white p-6 rounded-xl text-xl font-bold">C. <span id="optC"></span></div>
+                            <div class="bg-green-500 text-white p-6 rounded-xl text-xl font-bold">D. <span id="optD"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Up Screen -->
+            <div id="timeUpScreen" class="hidden fixed inset-0 bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center z-50">
+                <div class="text-center text-white">
+                    <div class="text-9xl mb-8">
+                        <i class="fas fa-clock bounce"></i>
+                    </div>
+                    <div class="text-8xl font-bold mb-4">หมดเวลา!</div>
+                    <div class="text-3xl font-bold">TIME'S UP!</div>
+                </div>
+            </div>
+
+            <!-- Statistics Screen -->
+            <div id="statisticsScreen" class="hidden min-h-screen">
+                <!-- Game Control Panel -->
+                <div class="bg-gray-800 text-white p-4 rounded-2xl mb-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <button onclick="showTeacherMenu()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </button>
+                        <button onclick="pauseGame()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-pause mr-2"></i>Pause
+                        </button>
+                    </div>
+                    <div class="text-lg font-bold">
+                        <i class="fas fa-chart-bar mr-2"></i>สถิติการตอบ
+                    </div>
+                    <div class="flex space-x-4">
+                        <button onclick="showAnswer()" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-forward mr-2"></i>Next
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-2xl p-12 max-w-7xl mx-auto">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">สถิติการตอบ</h2>
+                    <div id="statsChart" class="space-y-6"></div>
+                </div>
+            </div>
+
+            <!-- Answer Screen -->
+            <div id="answerScreen" class="hidden min-h-screen">
+                <!-- Game Control Panel -->
+                <div class="bg-gray-800 text-white p-4 rounded-2xl mb-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <button onclick="showTeacherMenu()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </button>
+                        <button onclick="pauseGame()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-pause mr-2"></i>Pause
+                        </button>
+                    </div>
+                    <div class="text-lg font-bold">
+                        <i class="fas fa-check-circle mr-2"></i>เฉลยคำตอบ
+                    </div>
+                    <div class="flex space-x-4">
+                        <button onclick="showLeaderboard()" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-forward mr-2"></i>Next
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-6xl mx-auto">
+                    <div class="mb-8">
+                        <i class="fas fa-check-circle text-9xl text-green-500 bounce"></i>
+                    </div>
+                    <h2 class="text-5xl font-bold text-gray-800 mb-6">เฉลยคำตอบ</h2>
+                    <div id="correctAnswerDisplay" class="text-8xl font-bold text-green-600 mb-6"></div>
+                    <div id="correctAnswerText" class="text-3xl text-gray-600"></div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Screen -->
+            <div id="leaderboardScreen" class="hidden min-h-screen">
+                <!-- Game Control Panel -->
+                <div class="bg-gray-800 text-white p-4 rounded-2xl mb-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <button onclick="showTeacherMenu()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </button>
+                        <button onclick="pauseGame()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-pause mr-2"></i>Pause
+                        </button>
+                    </div>
+                    <div class="text-lg font-bold">
+                        <i class="fas fa-trophy mr-2"></i>ตารางคะแนน
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="nextFromLeaderboard" onclick="nextFromLeaderboard()" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-forward mr-2"></i>Next
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-2xl p-12 max-w-7xl mx-auto">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">
+                        <i class="fas fa-trophy text-yellow-500 mr-3"></i>ตารางคะแนน
+                    </h2>
+                    <div id="leaderboardContainer" class="space-y-6"></div>
+                </div>
+            </div>
+
+            <!-- Final Results -->
+            <div id="finalResults" class="hidden bg-white rounded-3xl shadow-2xl p-12 text-center min-h-[85vh] max-w-7xl mx-auto">
+                <div class="mb-6">
+                    <i class="fas fa-trophy text-8xl text-yellow-500 bounce"></i>
+                </div>
+                <h2 class="text-5xl font-bold text-gray-800 mb-8">เกมส์จบแล้ว! 🎉</h2>
+                <div id="finalLeaderboard" class="space-y-4 mb-8"></div>
+                <button onclick="showTeacherMenu()" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-4 rounded-xl text-xl font-bold hover:from-purple-600 hover:to-purple-700 transition-all duration-300">
+                    <i class="fas fa-home mr-2"></i>กลับหน้าแรก
+                </button>
+            </div>
+        </div>
+
+        <!-- Student View -->
+        <div id="studentView" class="hidden">
+            <!-- Student Join -->
+            <div id="studentJoin" class="bg-white rounded-3xl shadow-2xl p-8 max-w-md mx-auto">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-graduate text-6xl text-green-600 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-gray-800">เข้าร่วมเกมส์</h2>
+                </div>
+                
+                <form id="studentForm" class="space-y-6">
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">รหัสเกมส์</label>
+                        <input type="text" id="studentGameCode" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none text-lg text-center font-bold" placeholder="กรอกรหัสเกมส์" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">ชื่อของคุณ</label>
+                        <input type="text" id="studentName" class="w-full p-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none text-lg" placeholder="กรอกชื่อ" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">เลือกอวาตาร์</label>
+                        <div class="avatar-grid">
+                            <div class="avatar-option bg-red-100" data-avatar="🐶" onclick="selectAvatar(this)">🐶</div>
+                            <div class="avatar-option bg-blue-100" data-avatar="🐱" onclick="selectAvatar(this)">🐱</div>
+                            <div class="avatar-option bg-yellow-100" data-avatar="🐭" onclick="selectAvatar(this)">🐭</div>
+                            <div class="avatar-option bg-green-100" data-avatar="🐹" onclick="selectAvatar(this)">🐹</div>
+                            <div class="avatar-option bg-purple-100" data-avatar="🐰" onclick="selectAvatar(this)">🐰</div>
+                            <div class="avatar-option bg-pink-100" data-avatar="🦊" onclick="selectAvatar(this)">🦊</div>
+                            <div class="avatar-option bg-indigo-100" data-avatar="🐻" onclick="selectAvatar(this)">🐻</div>
+                            <div class="avatar-option bg-gray-100" data-avatar="🐼" onclick="selectAvatar(this)">🐼</div>
+                            <div class="avatar-option bg-red-100" data-avatar="🐨" onclick="selectAvatar(this)">🐨</div>
+                            <div class="avatar-option bg-blue-100" data-avatar="🐯" onclick="selectAvatar(this)">🐯</div>
+                            <div class="avatar-option bg-yellow-100" data-avatar="🦁" onclick="selectAvatar(this)">🦁</div>
+                            <div class="avatar-option bg-green-100" data-avatar="🐸" onclick="selectAvatar(this)">🐸</div>
+                            <div class="avatar-option bg-purple-100" data-avatar="🐵" onclick="selectAvatar(this)">🐵</div>
+                            <div class="avatar-option bg-pink-100" data-avatar="🐷" onclick="selectAvatar(this)">🐷</div>
+                            <div class="avatar-option bg-indigo-100" data-avatar="🐮" onclick="selectAvatar(this)">🐮</div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl text-xl font-bold hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-sign-in-alt mr-2"></i>เข้าร่วมเกมส์
+                    </button>
+                </form>
+                
+                <button onclick="showHome()" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl">
+                    <i class="fas fa-home mr-2"></i>กลับหน้าแรก
+                </button>
+            </div>
+
+            <!-- Student Waiting -->
+            <div id="studentWaiting" class="hidden bg-white rounded-3xl shadow-2xl p-8 max-w-md mx-auto text-center">
+                <div class="mb-6">
+                    <i class="fas fa-clock text-6xl text-blue-600 pulse"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">รอคำถามจากครู...</h2>
+                <div id="studentInfo" class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl mb-6">
+                    <div class="text-4xl mb-2" id="studentAvatar">🐶</div>
+                    <div class="text-xl font-bold" id="studentDisplayName">ชื่อนักเรียน</div>
+                </div>
+                <div class="text-gray-600 mb-6">กรุณารอสักครู่...</div>
+                <div class="space-y-3">
+                    <button onclick="editStudentName()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl transition-all duration-300">
+                        <i class="fas fa-edit mr-2"></i>แก้ไขชื่อ/อวาตาร์
+                    </button>
+                    <button onclick="showHome()" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl transition-all duration-300">
+                        <i class="fas fa-home mr-2"></i>กลับหน้าแรก
+                    </button>
+                </div>
+            </div>
+
+            <!-- Student Question -->
+            <div id="studentQuestion" class="hidden bg-white rounded-3xl shadow-2xl p-6 max-w-2xl mx-auto">
+                <div class="text-center mb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-600">คำถามที่ <span id="studentQuestionNum">1</span></h3>
+                        <div id="studentTimeRemaining" class="text-xl font-bold text-red-600"></div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                        <div id="studentTimeProgress" class="bg-gradient-to-r from-green-500 to-red-500 h-3 rounded-full progress-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-6">
+                    <h2 id="studentQuestionTitle" class="text-2xl font-bold text-gray-800 mb-4" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.1);"></h2>
+                    <div id="studentQuestionImageContainer" class="hidden mb-4">
+                        <img id="studentQuestionImg" class="max-w-md mx-auto rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div id="studentOptionsContainer" class="grid grid-cols-1 gap-3 mb-4">
+                    <button class="w-full bg-red-500 hover:bg-red-600 text-white p-4 rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105" onclick="selectAnswer('A')">
+                        A. <span id="studentOptA"></span>
+                    </button>
+                    <button class="w-full bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105" onclick="selectAnswer('B')">
+                        B. <span id="studentOptB"></span>
+                    </button>
+                    <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105" onclick="selectAnswer('C')">
+                        C. <span id="studentOptC"></span>
+                    </button>
+                    <button class="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105" onclick="selectAnswer('D')">
+                        D. <span id="studentOptD"></span>
+                    </button>
+                </div>
+                
+                <div id="studentAnswerSelected" class="hidden mt-4 p-4 bg-green-100 rounded-xl text-center">
+                    <i class="fas fa-check-circle text-green-600 text-2xl mb-2"></i>
+                    <div class="text-green-800 font-bold">คุณเลือก: <span id="selectedAnswerDisplay"></span></div>
+                    <div class="text-green-600">รอผลลัพธ์...</div>
+                </div>
+                
+                <button onclick="showHome()" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl">
+                    <i class="fas fa-home mr-2"></i>หน้าแรก
+                </button>
+            </div>
+
+            <!-- Student Countdown -->
+            <div id="studentCountdown" class="hidden bg-white rounded-3xl shadow-2xl p-8 max-w-md mx-auto text-center">
+                <div class="mb-6">
+                    <i class="fas fa-rocket text-6xl text-purple-600 bounce"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">เตรียมตัว!</h2>
+                <div class="text-gray-600 mb-4">เกมส์กำลังจะเริ่ม...</div>
+                <div class="animate-pulse text-purple-600 font-bold">รอสักครู่...</div>
+                <button onclick="showHome()" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl">
+                    <i class="fas fa-home mr-2"></i>หน้าแรก
+                </button>
+            </div>
+
+            <!-- Student Time Up -->
+            <div id="studentTimeUp" class="hidden bg-white rounded-3xl shadow-2xl p-8 max-w-md mx-auto text-center">
+                <div class="mb-6">
+                    <i class="fas fa-clock text-6xl text-red-600 bounce"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-red-600 mb-4">หมดเวลา!</h2>
+                <div class="text-red-700 mb-4">TIME'S UP!</div>
+                <div class="text-gray-600">รอดูเฉลยจากครู...</div>
+                <button onclick="showHome()" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl">
+                    <i class="fas fa-home mr-2"></i>หน้าแรก
+                </button>
+            </div>
+
+            <!-- Student Answer Result -->
+            <div id="studentAnswerResult" class="hidden bg-white rounded-3xl shadow-2xl p-8 max-w-md mx-auto">
+                <!-- Content will be dynamically generated -->
+            </div>
+
+            <!-- Student Finished -->
+            <div id="studentFinished" class="hidden bg-white rounded-3xl shadow-2xl p-8 max-w-md mx-auto text-center">
+                <div class="mb-6">
+                    <i class="fas fa-trophy text-6xl text-yellow-500 bounce"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">เกมส์จบแล้ว! 🎉</h2>
+                <div class="text-gray-600 mb-4">ขอบคุณที่เข้าร่วม</div>
+                <button onclick="showHome()" class="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-4 rounded-xl text-xl font-bold hover:from-purple-600 hover:to-purple-700 transition-all duration-300">
+                    <i class="fas fa-home mr-2"></i>กลับหน้าแรก
+                </button>
+            </div>
+
+            <!-- Student Paused -->
+            <div id="studentPaused" class="hidden bg-white rounded-3xl shadow-2xl p-8 max-w-md mx-auto text-center">
+                <div class="mb-6">
+                    <i class="fas fa-pause text-6xl text-orange-600 pulse"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">เกมส์หยุดชั่วคราว</h2>
+                <div class="text-gray-600">รอครูเริ่มเกมส์ต่อ...</div>
+                <button onclick="showHome()" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl">
+                    <i class="fas fa-home mr-2"></i>หน้าแรก
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global variables
+        let currentGame = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let players = [];
+        let gameTimer = null;
+        let selectedAvatar = '🐶';
+        let currentStudent = null;
+        let gameState = 'waiting'; // waiting, playing, finished
+        let isProcessing = false; // Prevent button spam
+        let playersUpdateInterval = null; // For real-time player updates
+        let gameStateUpdateInterval = null; // For real-time game state updates
+        
+        // Audio context for tick sound
+        let audioContext = null;
+        
+        function playTickSound() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.type = 'square';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (error) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listeners
+            document.getElementById('questionType').addEventListener('change', toggleImageUpload);
+            document.getElementById('questionImage').addEventListener('change', previewImage);
+            document.getElementById('studentForm').addEventListener('submit', joinGame);
+            
+            // Load games on startup
+            loadGames();
+            
+            // Listen for game state changes
+            window.addEventListener('gameStateChanged', function(event) {
+                console.log('Game state changed:', event.detail);
+                if (currentStudent && currentGame) {
+                    checkGameStatus();
+                }
+            });
+            
+            // Auto-check for game start in student view
+            setInterval(checkGameStatus, 1000);
+        });
+        
+        // Navigation functions
+        function showHome() {
+            hideAllScreens();
+            document.getElementById('homeScreen').classList.remove('hidden');
+        }
+        
+        function showTeacherView() {
+            hideAllScreens();
+            document.getElementById('teacherView').classList.remove('hidden');
+            showTeacherMenu();
+        }
+        
+        function showStudentView() {
+            hideAllScreens();
+            document.getElementById('studentView').classList.remove('hidden');
+        }
+        
+        function showTeacherMenu() {
+            hideTeacherScreens();
+            document.getElementById('teacherMenu').classList.remove('hidden');
+        }
+        
+        function createNewGame() {
+            hideTeacherScreens();
+            document.getElementById('createGameForm').classList.remove('hidden');
+            resetGameForm();
+        }
+        
+        function showGameList() {
+            hideTeacherScreens();
+            document.getElementById('gameList').classList.remove('hidden');
+            displayGames();
+        }
+        
+        function hideAllScreens() {
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('teacherView').classList.add('hidden');
+            document.getElementById('studentView').classList.add('hidden');
+        }
+        
+        function hideTeacherScreens() {
+            document.getElementById('teacherMenu').classList.add('hidden');
+            document.getElementById('createGameForm').classList.add('hidden');
+            document.getElementById('gameList').classList.add('hidden');
+            document.getElementById('lobby').classList.add('hidden');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('statisticsScreen').classList.add('hidden');
+            document.getElementById('answerScreen').classList.add('hidden');
+            document.getElementById('leaderboardScreen').classList.add('hidden');
+            document.getElementById('finalResults').classList.add('hidden');
+        }
+        
+        // Game creation functions
+        function toggleImageUpload() {
+            const questionType = document.getElementById('questionType').value;
+            const imageUpload = document.getElementById('imageUpload');
+            const fileInput = document.getElementById('questionImage');
+            
+            if (questionType === 'image' || questionType === 'video') {
+                imageUpload.classList.remove('hidden');
+                // Update file input accept attribute
+                fileInput.accept = questionType === 'image' ? 'image/*' : 'video/*';
+            } else {
+                imageUpload.classList.add('hidden');
+            }
+        }
+        
+        function previewImage() {
+            const file = document.getElementById('questionImage').files[0];
+            const preview = document.getElementById('imagePreview');
+            const img = document.getElementById('previewImg');
+            const video = document.getElementById('previewVideo');
+            const videoSource = document.getElementById('previewVideoSource');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (file.type.startsWith('image/')) {
+                        img.src = e.target.result;
+                        img.classList.remove('hidden');
+                        video.classList.add('hidden');
+                    } else if (file.type.startsWith('video/')) {
+                        videoSource.src = e.target.result;
+                        video.load();
+                        video.classList.remove('hidden');
+                        img.classList.add('hidden');
+                    }
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.classList.add('hidden');
+                img.classList.add('hidden');
+                video.classList.add('hidden');
+            }
+        }
+        
+        function addQuestion() {
+            const questionText = document.getElementById('questionText').value.trim();
+            const questionType = document.getElementById('questionType').value;
+            const timeLimit = parseInt(document.getElementById('timeLimit').value);
+            const optionA = document.getElementById('optionA').value.trim();
+            const optionB = document.getElementById('optionB').value.trim();
+            const optionC = document.getElementById('optionC').value.trim();
+            const optionD = document.getElementById('optionD').value.trim();
+            const correctAnswer = document.getElementById('correctAnswer').value;
+            const score = parseInt(document.getElementById('questionScore').value);
+            
+            if (!questionText || !optionA || !optionB) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณากรอกคำถามและตัวเลือก A, B', 'error');
+                return;
+            }
+            
+            // Handle media files
+            if (questionType === 'image' || questionType === 'video') {
+                const file = document.getElementById('questionImage').files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const mediaData = e.target.result;
+                        saveQuestion(mediaData);
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                } else {
+                    Swal.fire('ข้อผิดพลาด', `กรุณาเลือก${questionType === 'image' ? 'รูปภาพ' : 'วิดีโอ'}`, 'error');
+                    return;
+                }
+            }
+            
+            function saveQuestion(mediaData = null) {
+                const question = {
+                    id: Date.now(),
+                    text: questionText,
+                    type: questionType,
+                    timeLimit: timeLimit,
+                    image: questionType === 'image' ? mediaData : null,
+                    video: questionType === 'video' ? mediaData : null,
+                    options: {
+                        A: optionA,
+                        B: optionB,
+                        C: optionC || '',
+                        D: optionD || ''
+                    },
+                    correctAnswer: correctAnswer,
+                    score: score
+                };
+                
+                questions.push(question);
+                displayQuestion(question);
+                resetQuestionForm();
+                
+                Swal.fire({
+                    title: 'สำเร็จ',
+                    text: 'บันทึกคำถามสำเร็จ',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+            
+            if (questionType === 'text') {
+                saveQuestion();
+            }
+        }
+        
+        function displayQuestion(question) {
+            const container = document.getElementById('questionsContainer');
+            const questionCard = document.createElement('div');
+            questionCard.className = 'bg-gray-50 p-6 rounded-xl border-2 border-gray-200';
+            questionCard.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h4 class="text-xl font-bold text-gray-800">คำถามที่ ${questions.length}</h4>
+                    <button onclick="removeQuestion(${question.id})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <p class="text-lg mb-4">${question.text}</p>
+                ${question.image ? `<img src="${question.image}" class="max-w-xs rounded-lg mb-4">` : ''}
+                ${question.video ? `<video controls class="max-w-xs rounded-lg mb-4"><source src="${question.video}" type="video/mp4">เบราว์เซอร์ไม่รองรับการเล่นวิดีโอ</video>` : ''}
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="bg-red-100 p-2 rounded ${question.correctAnswer === 'A' ? 'ring-2 ring-green-500' : ''}">A. ${question.options.A}</div>
+                    <div class="bg-blue-100 p-2 rounded ${question.correctAnswer === 'B' ? 'ring-2 ring-green-500' : ''}">B. ${question.options.B}</div>
+                    ${question.options.C ? `<div class="bg-yellow-100 p-2 rounded ${question.correctAnswer === 'C' ? 'ring-2 ring-green-500' : ''}">C. ${question.options.C}</div>` : ''}
+                    ${question.options.D ? `<div class="bg-green-100 p-2 rounded ${question.correctAnswer === 'D' ? 'ring-2 ring-green-500' : ''}">D. ${question.options.D}</div>` : ''}
+                </div>
+                <div class="flex justify-between text-sm text-gray-600">
+                    <span>คำตอบ: <strong class="text-green-600">${question.correctAnswer}</strong></span>
+                    <span>คะแนน: <strong>${question.score}</strong></span>
+                    <span>เวลา: <strong>${question.timeLimit > 0 ? question.timeLimit + ' วินาที' : 'ไม่จับเวลา'}</strong></span>
+                </div>
+            `;
+            container.appendChild(questionCard);
+        }
+        
+        function removeQuestion(questionId) {
+            Swal.fire({
+                title: 'ยืนยันการลบ',
+                text: 'คุณต้องการลบคำถามนี้หรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    questions = questions.filter(q => q.id !== questionId);
+                    document.getElementById('questionsContainer').innerHTML = '';
+                    questions.forEach(displayQuestion);
+                    Swal.fire('สำเร็จ', 'ลบคำถามสำเร็จ', 'success');
+                }
+            });
+        }
+        
+        function resetQuestionForm() {
+            document.getElementById('questionText').value = '';
+            document.getElementById('optionA').value = '';
+            document.getElementById('optionB').value = '';
+            document.getElementById('optionC').value = '';
+            document.getElementById('optionD').value = '';
+            document.getElementById('questionImage').value = '';
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('correctAnswer').value = 'A';
+            document.getElementById('questionScore').value = '5';
+        }
+        
+        function resetGameForm() {
+            document.getElementById('subjectName').value = '';
+            document.getElementById('fileUrl').value = 'https://kidneybidi.my.canva.site/bcngame';
+            questions = [];
+            document.getElementById('questionsContainer').innerHTML = '';
+            resetQuestionForm();
+        }
+        
+        function saveGame() {
+            const subjectName = document.getElementById('subjectName').value.trim();
+            const fileUrl = document.getElementById('fileUrl').value.trim();
+            
+            if (!subjectName) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณากรอกชื่อรายวิชา', 'error');
+                return;
+            }
+            
+            if (questions.length === 0) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณาเพิ่มคำถามอย่างน้อย 1 ข้อ', 'error');
+                return;
+            }
+            
+            const gameData = {
+                id: Date.now(),
+                name: subjectName,
+                fileUrl: fileUrl,
+                questions: questions,
+                gameCode: generateGameCode(),
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            const games = JSON.parse(localStorage.getItem('games') || '[]');
+            games.push(gameData);
+            localStorage.setItem('games', JSON.stringify(games));
+            
+            Swal.fire('สำเร็จ', 'บันทึกเกมส์สำเร็จ', 'success');
+            showGameList();
+        }
+        
+        function generateGameCode() {
+            return Math.random().toString(36).substr(2, 6).toUpperCase();
+        }
+        
+        // Game management functions
+        function loadGames() {
+            return JSON.parse(localStorage.getItem('games') || '[]');
+        }
+        
+        function displayGames() {
+            const games = loadGames();
+            const container = document.getElementById('gamesContainer');
+            container.innerHTML = '';
+            
+            if (games.length === 0) {
+                container.innerHTML = '<div class="text-center py-8"><i class="fas fa-folder-open text-6xl text-gray-400 mb-4"></i><p class="text-gray-500 text-xl">ยังไม่มีเกมส์ที่สร้างไว้</p><p class="text-gray-400">กดปุ่ม "สร้างเกมส์ใหม่" เพื่อเริ่มต้น</p></div>';
+                return;
+            }
+            
+            games.forEach((game, index) => {
+                const gameCard = document.createElement('div');
+                gameCard.className = 'bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-2xl card-hover';
+                gameCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">${game.name}</h3>
+                            <p class="opacity-90">รหัสเกมส์: ${game.gameCode}</p>
+                            <p class="opacity-90">คำถาม: ${game.questions.length} ข้อ</p>
+                            <p class="opacity-75 text-sm">สร้างเมื่อ: ${new Date(game.createdAt).toLocaleDateString('th-TH')}</p>
+                        </div>
+                        <div class="text-right">
+                            <button onclick="deleteGame(${index})" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg mb-2 transition-all duration-300">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="editGame(${index})" class="flex-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-edit mr-2"></i>แก้ไข
+                        </button>
+                        <button onclick="clearPlayers(${index})" class="flex-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-user-minus mr-2"></i>ลบรายชื่อ
+                        </button>
+                        <button onclick="startLobby(${index})" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-all duration-300">
+                            <i class="fas fa-play mr-2"></i>เริ่มเกมส์
+                        </button>
+                    </div>
+                `;
+                container.appendChild(gameCard);
+            });
+        }
+        
+        function deleteGame(index) {
+            Swal.fire({
+                title: 'ยืนยันการลบ',
+                text: 'คุณต้องการลบเกมส์นี้หรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const games = loadGames();
+                    games.splice(index, 1);
+                    localStorage.setItem('games', JSON.stringify(games));
+                    displayGames();
+                    Swal.fire('สำเร็จ', 'ลบเกมส์สำเร็จ', 'success');
+                }
+            });
+        }
+        
+        function editGame(index) {
+            const games = loadGames();
+            const game = games[index];
+            
+            // Load game data into form
+            document.getElementById('subjectName').value = game.name;
+            document.getElementById('fileUrl').value = game.fileUrl;
+            questions = [...game.questions];
+            
+            // Display questions
+            document.getElementById('questionsContainer').innerHTML = '';
+            questions.forEach(displayQuestion);
+            
+            // Show form
+            hideTeacherScreens();
+            document.getElementById('createGameForm').classList.remove('hidden');
+            
+            // Update save function to edit instead of create
+            const saveBtn = document.querySelector('[onclick="saveGame()"]');
+            saveBtn.onclick = function() {
+                const subjectName = document.getElementById('subjectName').value.trim();
+                const fileUrl = document.getElementById('fileUrl').value.trim();
+                
+                if (!subjectName) {
+                    Swal.fire('ข้อผิดพลาด', 'กรุณากรอกชื่อรายวิชา', 'error');
+                    return;
+                }
+                
+                if (questions.length === 0) {
+                    Swal.fire('ข้อผิดพลาด', 'กรุณาเพิ่มคำถามอย่างน้อย 1 ข้อ', 'error');
+                    return;
+                }
+                
+                // Update game
+                games[index] = {
+                    ...game,
+                    name: subjectName,
+                    fileUrl: fileUrl,
+                    questions: questions,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('games', JSON.stringify(games));
+                
+                Swal.fire('สำเร็จ', 'แก้ไขเกมส์สำเร็จ', 'success');
+                showGameList();
+                
+                // Reset save function
+                saveBtn.onclick = saveGame;
+            };
+        }
+        
+        function clearPlayers(index) {
+            Swal.fire({
+                title: 'ยืนยันการลบรายชื่อ',
+                text: 'คุณต้องการลบรายชื่อนักเรียนทั้งหมดหรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const games = loadGames();
+                    const gameId = games[index].id;
+                    localStorage.removeItem(`players_${gameId}`);
+                    localStorage.removeItem(`answers_${gameId}`);
+                    Swal.fire('สำเร็จ', 'ลบรายชื่อสำเร็จ', 'success');
+                }
+            });
+        }
+        
+        function startLobby(index) {
+            const games = loadGames();
+            currentGame = games[index];
+            questions = currentGame.questions;
+            showLobby();
+        }
+        
+        function showLobby() {
+            hideTeacherScreens();
+            document.getElementById('lobby').classList.remove('hidden');
+            
+            // Display game code
+            document.getElementById('gameCode').textContent = currentGame.gameCode;
+            
+            // Generate QR Code
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentGame.fileUrl + '?code=' + currentGame.gameCode)}`;
+            document.getElementById('qrCode').innerHTML = `<img src="${qrUrl}" alt="QR Code" class="rounded-xl shadow-lg">`;
+            
+            // Start real-time players list updates
+            updatePlayersList();
+            startPlayersRealTimeUpdate();
+        }
+        
+        function startPlayersRealTimeUpdate() {
+            // Clear existing interval
+            if (playersUpdateInterval) {
+                clearInterval(playersUpdateInterval);
+            }
+            
+            // Update players list every second
+            playersUpdateInterval = setInterval(() => {
+                if (currentGame && document.getElementById('lobby') && !document.getElementById('lobby').classList.contains('hidden')) {
+                    updatePlayersList();
+                }
+            }, 1000);
+        }
+        
+        function stopPlayersRealTimeUpdate() {
+            if (playersUpdateInterval) {
+                clearInterval(playersUpdateInterval);
+                playersUpdateInterval = null;
+            }
+        }
+        
+        function updatePlayersList() {
+            if (!currentGame) return;
+            
+            const players = JSON.parse(localStorage.getItem(`players_${currentGame.id}`) || '[]');
+            const container = document.getElementById('playersList');
+            const countElement = document.getElementById('playerCount');
+            
+            countElement.textContent = players.length;
+            container.innerHTML = '';
+            
+            if (players.length === 0) {
+                container.innerHTML = '<div class="col-span-4 text-center text-gray-500">ยังไม่มีผู้เล่นเข้าร่วม</div>';
+            } else {
+                players.forEach(player => {
+                    const playerCard = document.createElement('div');
+                    playerCard.className = 'bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl text-center transform hover:scale-105 transition-all duration-300';
+                    playerCard.innerHTML = `
+                        <div class="text-3xl mb-2">${player.avatar}</div>
+                        <div class="font-bold text-sm">${player.name}</div>
+                        <div class="text-xs opacity-75">${new Date(player.joinedAt).toLocaleTimeString('th-TH')}</div>
+                    `;
+                    container.appendChild(playerCard);
+                });
+            }
+            
+            // Enable start button if there are players
+            const startBtn = document.getElementById('startGameBtn');
+            startBtn.disabled = players.length === 0;
+            if (players.length > 0) {
+                startBtn.classList.remove('opacity-50');
+            } else {
+                startBtn.classList.add('opacity-50');
+            }
+        }
+        
+        // Game play functions
+        function startGame() {
+            if (isProcessing) return;
+            if (!currentGame || questions.length === 0) return;
+            
+            isProcessing = true;
+            currentQuestionIndex = 0;
+            gameState = 'playing';
+            
+            // Stop players update interval
+            stopPlayersRealTimeUpdate();
+            
+            // Save game state
+            localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                state: 'countdown',
+                questionIndex: 0,
+                timestamp: Date.now()
+            }));
+            
+            // Dispatch event for students
+            window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                detail: { gameId: currentGame.id, state: 'countdown' }
+            }));
+            
+            showCountdown();
+            isProcessing = false;
+        }
+        
+        let countdownTimer = null;
+        
+        function showCountdown() {
+            document.getElementById('countdownScreen').classList.remove('hidden');
+            
+            let count = 3;
+            const numberElement = document.getElementById('countdownNumber');
+            const textElement = document.getElementById('countdownText');
+            const iconElement = document.getElementById('countdownIcon');
+            
+            // Text-to-speech for countdown
+            const numbers = ['สาม', 'สอง', 'หนึ่ง'];
+            
+            function countdown() {
+                if (count > 0) {
+                    numberElement.textContent = count;
+                    numberElement.className = 'text-9xl font-bold mb-4 countdownPulse';
+                    textElement.textContent = numbers[3 - count];
+                    
+                    // Text-to-speech
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(numbers[3 - count]);
+                        utterance.lang = 'th-TH';
+                        speechSynthesis.speak(utterance);
+                    }
+                    
+                    count--;
+                    countdownTimer = setTimeout(countdown, 800);
+                } else {
+                    // Show rocket and "เริ่ม!"
+                    numberElement.textContent = '';
+                    textElement.textContent = 'เริ่ม!';
+                    iconElement.innerHTML = '<i class="fas fa-rocket rocket-launch"></i>';
+                    
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance('เริ่ม');
+                        utterance.lang = 'th-TH';
+                        speechSynthesis.speak(utterance);
+                    }
+                    
+                    countdownTimer = setTimeout(() => {
+                        document.getElementById('countdownScreen').classList.add('hidden');
+                        showQuestion();
+                    }, 1000);
+                }
+            }
+            
+            countdown();
+        }
+        
+        function skipCountdown() {
+            if (countdownTimer) {
+                clearTimeout(countdownTimer);
+                countdownTimer = null;
+            }
+            document.getElementById('countdownScreen').classList.add('hidden');
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showFinalResults();
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            
+            // Save game state
+            localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                state: 'question',
+                questionIndex: currentQuestionIndex,
+                question: question,
+                timeLimit: question.timeLimit,
+                timestamp: Date.now()
+            }));
+            
+            // Dispatch event for students
+            window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                detail: { 
+                    gameId: currentGame.id, 
+                    state: 'question',
+                    questionIndex: currentQuestionIndex,
+                    question: question
+                }
+            }));
+            
+            hideTeacherScreens();
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('questionDisplay').classList.remove('hidden');
+            
+            // Display question
+            document.getElementById('currentQuestionNum').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionTitle').textContent = question.text;
+            
+            // Handle media (image or video)
+            if (question.image) {
+                document.getElementById('questionImageContainer').classList.remove('hidden');
+                document.getElementById('questionImg').src = question.image;
+            } else if (question.video) {
+                document.getElementById('questionImageContainer').classList.remove('hidden');
+                document.getElementById('questionImg').outerHTML = `
+                    <video id="questionImg" controls class="max-w-md mx-auto rounded-xl shadow-lg" autoplay muted>
+                        <source src="${question.video}" type="video/mp4">
+                        เบราว์เซอร์ไม่รองรับการเล่นวิดีโอ
+                    </video>
+                `;
+            } else {
+                document.getElementById('questionImageContainer').classList.add('hidden');
+            }
+            
+            // Display options
+            document.getElementById('optA').textContent = question.options.A;
+            document.getElementById('optB').textContent = question.options.B;
+            document.getElementById('optC').textContent = question.options.C;
+            document.getElementById('optD').textContent = question.options.D;
+            
+            // Start timer if needed
+            if (question.timeLimit > 0) {
+                startQuestionTimer(question.timeLimit);
+            } else {
+                document.getElementById('timeRemaining').textContent = '';
+                document.getElementById('timeProgress').style.width = '100%';
+            }
+        }
+        
+        function startQuestionTimer(timeLimit) {
+            let timeLeft = timeLimit;
+            const timeElement = document.getElementById('timeRemaining');
+            const progressElement = document.getElementById('timeProgress');
+            let tickSound = null;
+            
+            gameTimer = setInterval(() => {
+                timeElement.textContent = timeLeft + ' วินาที';
+                progressElement.style.width = (timeLeft / timeLimit * 100) + '%';
+                
+                // เสียงเตือน 10 วินาทีสุดท้าย
+                if (timeLeft <= 10 && timeLeft > 0) {
+                    // สร้างเสียงติ๊กต๊อก
+                    playTickSound();
+                    
+                    // เปลี่ยนสีเป็นแดงเมื่อเหลือ 10 วินาที
+                    timeElement.classList.add('text-red-600', 'animate-pulse');
+                    progressElement.classList.add('bg-red-500');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    showTimeUpScreen();
+                }
+                
+                timeLeft--;
+            }, 1000);
+        }
+        
+        function showTimeUpScreen() {
+            // Save game state
+            localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                state: 'timeup',
+                questionIndex: currentQuestionIndex,
+                timestamp: Date.now()
+            }));
+            
+            // Dispatch event for students
+            window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                detail: { gameId: currentGame.id, state: 'timeup' }
+            }));
+            
+            document.getElementById('timeUpScreen').classList.remove('hidden');
+            
+            // เสียงแจ้งเตือนหมดเวลา
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('หมดเวลา');
+                utterance.lang = 'th-TH';
+                utterance.rate = 1.2;
+                speechSynthesis.speak(utterance);
+            }
+            
+            setTimeout(() => {
+                document.getElementById('timeUpScreen').classList.add('hidden');
+                showStatistics();
+            }, 2000);
+        }
+        
+        function showStatistics() {
+            clearInterval(gameTimer);
+            
+            // Save game state
+            localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                state: 'statistics',
+                questionIndex: currentQuestionIndex,
+                timestamp: Date.now()
+            }));
+            
+            // Dispatch event for students
+            window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                detail: { gameId: currentGame.id, state: 'statistics' }
+            }));
+            
+            hideTeacherScreens();
+            document.getElementById('statisticsScreen').classList.remove('hidden');
+            
+            // Calculate statistics
+            const answers = JSON.parse(localStorage.getItem(`answers_${currentGame.id}`) || '[]');
+            const questionAnswers = answers.filter(a => a.questionIndex === currentQuestionIndex);
+            const question = questions[currentQuestionIndex];
+            
+            const stats = {
+                A: questionAnswers.filter(a => a.answer === 'A').length,
+                B: questionAnswers.filter(a => a.answer === 'B').length,
+                C: questionAnswers.filter(a => a.answer === 'C').length,
+                D: questionAnswers.filter(a => a.answer === 'D').length
+            };
+            
+            const total = stats.A + stats.B + stats.C + stats.D;
+            
+            // Display statistics
+            const statsContainer = document.getElementById('statsChart');
+            statsContainer.innerHTML = `
+                <div class="mb-6 text-center">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">สถิติการตอบคำถามที่ ${currentQuestionIndex + 1}</h3>
+                    <p class="text-gray-600">จำนวนผู้ตอบทั้งหมด: <span class="font-bold text-blue-600">${total} คน</span></p>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <div class="w-16 bg-red-500 text-white p-2 rounded-l font-bold flex items-center justify-center">A</div>
+                        <div class="flex-1 bg-red-200 rounded-r overflow-hidden relative">
+                            <div class="bg-red-500 h-10 flex items-center justify-end pr-3 text-white font-bold transition-all duration-1000" style="width: ${total > 0 ? Math.max(5, (stats.A / total * 100)) : 5}%">
+                                ${stats.A} คน
+                            </div>
+                            ${total > 0 ? `<div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">${((stats.A / total) * 100).toFixed(1)}%</div>` : ''}
+                        </div>
+                        ${question.correctAnswer === 'A' ? '<div class="ml-2 text-green-500"><i class="fas fa-check-circle text-xl"></i></div>' : ''}
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-16 bg-blue-500 text-white p-2 rounded-l font-bold flex items-center justify-center">B</div>
+                        <div class="flex-1 bg-blue-200 rounded-r overflow-hidden relative">
+                            <div class="bg-blue-500 h-10 flex items-center justify-end pr-3 text-white font-bold transition-all duration-1000" style="width: ${total > 0 ? Math.max(5, (stats.B / total * 100)) : 5}%">
+                                ${stats.B} คน
+                            </div>
+                            ${total > 0 ? `<div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">${((stats.B / total) * 100).toFixed(1)}%</div>` : ''}
+                        </div>
+                        ${question.correctAnswer === 'B' ? '<div class="ml-2 text-green-500"><i class="fas fa-check-circle text-xl"></i></div>' : ''}
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-16 bg-yellow-500 text-white p-2 rounded-l font-bold flex items-center justify-center">C</div>
+                        <div class="flex-1 bg-yellow-200 rounded-r overflow-hidden relative">
+                            <div class="bg-yellow-500 h-10 flex items-center justify-end pr-3 text-white font-bold transition-all duration-1000" style="width: ${total > 0 ? Math.max(5, (stats.C / total * 100)) : 5}%">
+                                ${stats.C} คน
+                            </div>
+                            ${total > 0 ? `<div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">${((stats.C / total) * 100).toFixed(1)}%</div>` : ''}
+                        </div>
+                        ${question.correctAnswer === 'C' ? '<div class="ml-2 text-green-500"><i class="fas fa-check-circle text-xl"></i></div>' : ''}
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-16 bg-green-500 text-white p-2 rounded-l font-bold flex items-center justify-center">D</div>
+                        <div class="flex-1 bg-green-200 rounded-r overflow-hidden relative">
+                            <div class="bg-green-500 h-10 flex items-center justify-end pr-3 text-white font-bold transition-all duration-1000" style="width: ${total > 0 ? Math.max(5, (stats.D / total * 100)) : 5}%">
+                                ${stats.D} คน
+                            </div>
+                            ${total > 0 ? `<div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 text-sm">${((stats.D / total) * 100).toFixed(1)}%</div>` : ''}
+                        </div>
+                        ${question.correctAnswer === 'D' ? '<div class="ml-2 text-green-500"><i class="fas fa-check-circle text-xl"></i></div>' : ''}
+                    </div>
+                </div>
+                
+                ${total > 0 ? `
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-2">สรุปผลการตอบ:</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="flex justify-between">
+                                <span>ตอบถูก:</span>
+                                <span class="font-bold text-green-600">${stats[question.correctAnswer]} คน (${((stats[question.correctAnswer] / total) * 100).toFixed(1)}%)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>ตอบผิด:</span>
+                                <span class="font-bold text-red-600">${total - stats[question.correctAnswer]} คน (${(((total - stats[question.correctAnswer]) / total) * 100).toFixed(1)}%)</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+        
+        function pauseGame() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            Swal.fire({
+                title: 'ยืนยันการหยุดชั่วคราว',
+                text: 'คุณต้องการหยุดเกมส์ชั่วคราวหรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'หยุดชั่วคราว',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    clearInterval(gameTimer);
+                    gameState = 'paused';
+                    
+                    // Save game state
+                    localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                        state: 'paused',
+                        timestamp: Date.now()
+                    }));
+                    
+                    // Dispatch event for students
+                    window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                        detail: { gameId: currentGame.id, state: 'paused' }
+                    }));
+                    
+                    showTeacherMenu();
+                    Swal.fire({
+                        title: 'สำเร็จ',
+                        text: 'หยุดเกมส์ชั่วคราวแล้ว',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+                isProcessing = false;
+            });
+        }
+        
+        function nextQuestion() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            clearInterval(gameTimer);
+            showStatistics();
+            isProcessing = false;
+        }
+        
+        function nextFromLeaderboard() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            if (currentQuestionIndex + 1 >= questions.length) {
+                showFinalResults();
+            } else {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+            isProcessing = false;
+        }
+        
+        function showAnswer() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const question = questions[currentQuestionIndex];
+            
+            // Save game state
+            localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                state: 'answer',
+                questionIndex: currentQuestionIndex,
+                correctAnswer: question.correctAnswer,
+                timestamp: Date.now()
+            }));
+            
+            // Dispatch event for students
+            window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                detail: { 
+                    gameId: currentGame.id, 
+                    state: 'answer',
+                    correctAnswer: question.correctAnswer
+                }
+            }));
+            
+            hideTeacherScreens();
+            document.getElementById('answerScreen').classList.remove('hidden');
+            
+            document.getElementById('correctAnswerDisplay').textContent = question.correctAnswer;
+            document.getElementById('correctAnswerText').textContent = question.options[question.correctAnswer];
+            
+            isProcessing = false;
+        }
+        
+        function showLeaderboard() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            // Save game state
+            localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                state: 'leaderboard',
+                questionIndex: currentQuestionIndex,
+                timestamp: Date.now()
+            }));
+            
+            // Dispatch event for students
+            window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                detail: { gameId: currentGame.id, state: 'leaderboard' }
+            }));
+            
+            hideTeacherScreens();
+            document.getElementById('leaderboardScreen').classList.remove('hidden');
+            
+            // Calculate leaderboard
+            const players = JSON.parse(localStorage.getItem(`players_${currentGame.id}`) || '[]');
+            const answers = JSON.parse(localStorage.getItem(`answers_${currentGame.id}`) || '[]');
+            
+            const leaderboard = players.map(player => {
+                let totalScore = 0;
+                let correctAnswers = 0;
+                
+                // Calculate score for each question up to current index
+                for (let i = 0; i <= currentQuestionIndex; i++) {
+                    const question = questions[i];
+                    const playerAnswer = answers.find(a => a.studentId === player.id && a.questionIndex === i);
+                    
+                    if (playerAnswer && playerAnswer.answer === question.correctAnswer) {
+                        totalScore += question.score;
+                        correctAnswers++;
+                    }
+                }
+                
+                return {
+                    ...player,
+                    totalScore,
+                    correctAnswers,
+                    averageScore: totalScore / (currentQuestionIndex + 1)
+                };
+            });
+            
+            // Sort by total score
+            leaderboard.sort((a, b) => b.totalScore - a.totalScore);
+            
+            // Display leaderboard
+            const container = document.getElementById('leaderboardContainer');
+            container.innerHTML = '';
+            
+            if (leaderboard.length === 0) {
+                container.innerHTML = '<div class="text-center py-8"><i class="fas fa-users text-6xl text-gray-400 mb-4"></i><p class="text-gray-500 text-xl">ยังไม่มีผู้เล่นในตารางคะแนน</p></div>';
+            } else {
+                leaderboard.forEach((player, index) => {
+                    const rank = index + 1;
+                    let rankColor = 'bg-gray-500';
+                    let rankIcon = '';
+                    
+                    if (rank === 1) {
+                        rankColor = 'bg-gradient-to-r from-yellow-400 to-yellow-600';
+                        rankIcon = '🥇';
+                    } else if (rank === 2) {
+                        rankColor = 'bg-gradient-to-r from-gray-400 to-gray-600';
+                        rankIcon = '🥈';
+                    } else if (rank === 3) {
+                        rankColor = 'bg-gradient-to-r from-yellow-600 to-yellow-800';
+                        rankIcon = '🥉';
+                    } else if (rank <= 5) {
+                        rankColor = 'bg-gradient-to-r from-blue-500 to-blue-600';
+                    } else {
+                        rankColor = 'bg-gradient-to-r from-purple-500 to-purple-600';
+                    }
+                    
+                    const playerCard = document.createElement('div');
+                    playerCard.className = `${rankColor} text-white p-4 rounded-xl flex items-center justify-between card-hover transform transition-all duration-300`;
+                    playerCard.innerHTML = `
+                        <div class="flex items-center space-x-4">
+                            <div class="text-2xl font-bold">${rankIcon || `#${rank}`}</div>
+                            <div class="text-2xl">${player.avatar}</div>
+                            <div class="font-bold text-lg">${player.name}</div>
+                            <div class="text-sm opacity-75">
+                                ${player.correctAnswers}/${currentQuestionIndex + 1} ถูก
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold">${player.totalScore} คะแนน</div>
+                            <div class="text-sm opacity-75">เฉลี่ย ${player.averageScore.toFixed(1)}</div>
+                        </div>
+                    `;
+                    container.appendChild(playerCard);
+                });
+            }
+            
+            isProcessing = false;
+        }
+        
+        function showFinalResults() {
+            // Save game state
+            localStorage.setItem(`gameState_${currentGame.id}`, JSON.stringify({
+                state: 'finished',
+                timestamp: Date.now()
+            }));
+            
+            // Dispatch event for students
+            window.dispatchEvent(new CustomEvent('gameStateChanged', {
+                detail: { gameId: currentGame.id, state: 'finished' }
+            }));
+            
+            hideTeacherScreens();
+            document.getElementById('finalResults').classList.remove('hidden');
+            
+            // Calculate final leaderboard
+            const players = JSON.parse(localStorage.getItem(`players_${currentGame.id}`) || '[]');
+            const answers = JSON.parse(localStorage.getItem(`answers_${currentGame.id}`) || '[]');
+            
+            const finalLeaderboard = players.map(player => {
+                let totalScore = 0;
+                let correctAnswers = 0;
+                
+                questions.forEach((question, index) => {
+                    const playerAnswer = answers.find(a => a.studentId === player.id && a.questionIndex === index);
+                    if (playerAnswer && playerAnswer.answer === question.correctAnswer) {
+                        totalScore += question.score;
+                        correctAnswers++;
+                    }
+                });
+                
+                return {
+                    ...player,
+                    totalScore,
+                    correctAnswers,
+                    accuracy: (correctAnswers / questions.length) * 100
+                };
+            });
+            
+            finalLeaderboard.sort((a, b) => b.totalScore - a.totalScore);
+            
+            // Display final results
+            const container = document.getElementById('finalLeaderboard');
+            container.innerHTML = '';
+            
+            if (finalLeaderboard.length === 0) {
+                container.innerHTML = '<div class="text-center py-8"><i class="fas fa-users text-6xl text-gray-400 mb-4"></i><p class="text-gray-500 text-xl">ไม่มีผู้เล่นในเกมส์นี้</p></div>';
+                return;
+            }
+            
+            // Show top 10 players
+            const topPlayers = finalLeaderboard.slice(0, 10);
+            
+            topPlayers.forEach((player, index) => {
+                const rank = index + 1;
+                let rankColor = 'bg-gradient-to-r from-purple-500 to-pink-500';
+                let rankIcon = '';
+                
+                if (rank === 1) {
+                    rankColor = 'bg-gradient-to-r from-yellow-400 to-yellow-600';
+                    rankIcon = '🏆';
+                } else if (rank === 2) {
+                    rankColor = 'bg-gradient-to-r from-gray-400 to-gray-600';
+                    rankIcon = '🥈';
+                } else if (rank === 3) {
+                    rankColor = 'bg-gradient-to-r from-yellow-600 to-yellow-800';
+                    rankIcon = '🥉';
+                } else if (rank <= 5) {
+                    rankColor = 'bg-gradient-to-r from-blue-500 to-blue-600';
+                    rankIcon = `🎖️`;
+                }
+                
+                const playerCard = document.createElement('div');
+                playerCard.className = `${rankColor} text-white p-6 rounded-2xl flex items-center justify-between card-hover transform transition-all duration-300`;
+                playerCard.innerHTML = `
+                    <div class="flex items-center space-x-6">
+                        <div class="text-4xl">${rankIcon || `#${rank}`}</div>
+                        <div class="text-4xl">${player.avatar}</div>
+                        <div>
+                            <div class="font-bold text-2xl">${player.name}</div>
+                            <div class="text-sm opacity-75">
+                                ${player.correctAnswers}/${questions.length} ข้อถูก (${player.accuracy.toFixed(1)}%)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold">${player.totalScore} คะแนน</div>
+                        <div class="text-sm opacity-75">เฉลี่ย ${(player.totalScore / questions.length).toFixed(1)}</div>
+                    </div>
+                `;
+                container.appendChild(playerCard);
+            });
+            
+            // Add game statistics
+            const totalScore = questions.reduce((sum, q) => sum + q.score, 0);
+            const avgScore = finalLeaderboard.reduce((sum, p) => sum + p.totalScore, 0) / finalLeaderboard.length;
+            const perfectScores = finalLeaderboard.filter(p => p.totalScore === totalScore).length;
+            
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'mt-8 p-6 bg-white rounded-2xl border-2 border-gray-200';
+            statsDiv.innerHTML = `
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">
+                    <i class="fas fa-chart-bar text-blue-600 mr-2"></i>สรุปผลการแข่งขัน
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-blue-600">${finalLeaderboard.length}</div>
+                        <div class="text-sm text-blue-800">ผู้เข้าแข่งขัน</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-green-600">${questions.length}</div>
+                        <div class="text-sm text-green-800">จำนวนคำถาม</div>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-yellow-600">${totalScore}</div>
+                        <div class="text-sm text-yellow-800">คะแนนเต็ม</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-purple-600">${Math.round(avgScore)}</div>
+                        <div class="text-sm text-purple-800">คะแนนเฉลี่ย</div>
+                    </div>
+                </div>
+                
+                ${perfectScores > 0 ? `
+                    <div class="mt-4 p-4 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg text-center">
+                        <div class="text-yellow-800">
+                            <i class="fas fa-star text-2xl mb-2"></i>
+                            <div class="font-bold">มีผู้ได้คะแนนเต็ม ${perfectScores} คน! 🎉</div>
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="mt-4 text-center text-gray-600">
+                    <p class="text-lg">🎊 ขอแสดงความยินดีกับผู้เข้าแข่งขันทุกคน! 🎊</p>
+                    <p class="text-sm mt-2">เกมส์จบแล้ว - ขอบคุณที่เข้าร่วม</p>
+                </div>
+            `;
+            container.appendChild(statsDiv);
+        }
+        
+        // Student functions
+        function selectAvatar(element) {
+            // Remove previous selection
+            document.querySelectorAll('.avatar-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selection to clicked avatar
+            element.classList.add('selected');
+            selectedAvatar = element.dataset.avatar;
+        }
+        
+        function joinGame(e) {
+            e.preventDefault();
+            
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const gameCode = document.getElementById('studentGameCode').value.toUpperCase();
+            const studentName = document.getElementById('studentName').value.trim();
+            
+            if (!gameCode || !studentName) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                isProcessing = false;
+                return;
+            }
+            
+            // Find game by code
+            const games = loadGames();
+            const game = games.find(g => g.gameCode === gameCode);
+            
+            if (!game) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่พบรหัสเกมส์นี้', 'error');
+                isProcessing = false;
+                return;
+            }
+            
+            // Check for duplicate names
+            const existingPlayers = JSON.parse(localStorage.getItem(`players_${game.id}`) || '[]');
+            if (existingPlayers.some(p => p.name.toLowerCase() === studentName.toLowerCase())) {
+                Swal.fire({
+                    title: 'ชื่อซ้ำ!',
+                    text: `มีผู้เล่นชื่อ "${studentName}" อยู่แล้ว กรุณาใช้ชื่ออื่น`,
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+                isProcessing = false;
+                return;
+            }
+            
+            // Add player
+            const newPlayer = {
+                id: Date.now(),
+                name: studentName,
+                avatar: selectedAvatar,
+                joinedAt: new Date().toISOString()
+            };
+            
+            existingPlayers.push(newPlayer);
+            localStorage.setItem(`players_${game.id}`, JSON.stringify(existingPlayers));
+            
+            currentStudent = newPlayer;
+            currentGame = game;
+            
+            // Show waiting screen
+            document.getElementById('studentJoin').classList.add('hidden');
+            document.getElementById('studentWaiting').classList.remove('hidden');
+            
+            // Update student info display
+            document.getElementById('studentAvatar').textContent = selectedAvatar;
+            document.getElementById('studentDisplayName').textContent = studentName;
+            
+            Swal.fire('สำเร็จ', 'เข้าร่วมเกมส์สำเร็จ', 'success');
+            isProcessing = false;
+        }
+        
+        function editStudentName() {
+            if (isProcessing) return;
+            
+            Swal.fire({
+                title: 'แก้ไขชื่อและอวาตาร์',
+                html: `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-left font-bold mb-2">ชื่อใหม่:</label>
+                            <input id="swal-input1" class="swal2-input" placeholder="กรอกชื่อใหม่" value="${currentStudent.name}">
+                        </div>
+                        <div>
+                            <label class="block text-left font-bold mb-2">เลือกอวาตาร์ใหม่:</label>
+                            <div class="grid grid-cols-5 gap-2 mt-2">
+                                ${['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐸', '🐵', '🐷', '🐮'].map(avatar => 
+                                    `<div class="avatar-option-swal ${avatar === currentStudent.avatar ? 'selected' : ''}" data-avatar="${avatar}" onclick="selectSwalAvatar(this)">${avatar}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <style>
+                        .avatar-option-swal {
+                            width: 50px;
+                            height: 50px;
+                            border-radius: 50%;
+                            border: 3px solid transparent;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 20px;
+                            background: #f3f4f6;
+                        }
+                        .avatar-option-swal:hover {
+                            transform: scale(1.1);
+                            border-color: #667eea;
+                        }
+                        .avatar-option-swal.selected {
+                            border-color: #667eea;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        }
+                    </style>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                preConfirm: () => {
+                    const newName = document.getElementById('swal-input1').value.trim();
+                    const selectedAvatarElement = document.querySelector('.avatar-option-swal.selected');
+                    const newAvatar = selectedAvatarElement ? selectedAvatarElement.dataset.avatar : currentStudent.avatar;
+                    
+                    if (!newName) {
+                        Swal.showValidationMessage('กรุณากรอกชื่อ');
+                        return false;
+                    }
+                    
+                    return { name: newName, avatar: newAvatar };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    isProcessing = true;
+                    
+                    // Check for duplicate names (exclude current student)
+                    const existingPlayers = JSON.parse(localStorage.getItem(`players_${currentGame.id}`) || '[]');
+                    if (existingPlayers.some(p => p.name.toLowerCase() === result.value.name.toLowerCase() && p.id !== currentStudent.id)) {
+                        Swal.fire({
+                            title: 'ชื่อซ้ำ!',
+                            text: `มีผู้เล่นชื่อ "${result.value.name}" อยู่แล้ว กรุณาใช้ชื่ออื่น`,
+                            icon: 'error',
+                            confirmButtonText: 'ตกลง'
+                        });
+                        isProcessing = false;
+                        return;
+                    }
+                    
+                    // Update student data
+                    currentStudent.name = result.value.name;
+                    currentStudent.avatar = result.value.avatar;
+                    
+                    // Update in localStorage
+                    const playerIndex = existingPlayers.findIndex(p => p.id === currentStudent.id);
+                    if (playerIndex !== -1) {
+                        existingPlayers[playerIndex] = currentStudent;
+                        localStorage.setItem(`players_${currentGame.id}`, JSON.stringify(existingPlayers));
+                    }
+                    
+                    // Update display
+                    document.getElementById('studentAvatar').textContent = currentStudent.avatar;
+                    document.getElementById('studentDisplayName').textContent = currentStudent.name;
+                    
+                    Swal.fire('สำเร็จ', 'แก้ไขข้อมูลสำเร็จ', 'success');
+                    isProcessing = false;
+                }
+            });
+        }
+        
+        // Add missing function for Swal avatar selection
+        function selectSwalAvatar(element) {
+            document.querySelectorAll('.avatar-option-swal').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+        
+        function checkGameStatus() {
+            if (!currentStudent || !currentGame) return;
+            
+            const gameState = JSON.parse(localStorage.getItem(`gameState_${currentGame.id}`) || '{}');
+            
+            switch (gameState.state) {
+                case 'countdown':
+                    showStudentCountdown();
+                    break;
+                case 'question':
+                    showStudentQuestion(gameState.question, gameState.questionIndex);
+                    break;
+                case 'timeup':
+                    showStudentTimeUp();
+                    break;
+                case 'statistics':
+                    showStudentWaitingForAnswer();
+                    break;
+                case 'answer':
+                    showStudentAnswerResult(gameState.correctAnswer);
+                    break;
+                case 'leaderboard':
+                    showStudentWaitingForNext();
+                    break;
+                case 'finished':
+                    showStudentFinished();
+                    break;
+                case 'paused':
+                    showStudentPaused();
+                    break;
+                default:
+                    // Stay in waiting room
+                    break;
+            }
+        }
+        
+        function showStudentCountdown() {
+            hideStudentScreens();
+            document.getElementById('studentCountdown').classList.remove('hidden');
+        }
+        
+        function showStudentQuestion(question, questionIndex) {
+            hideStudentScreens();
+            document.getElementById('studentQuestion').classList.remove('hidden');
+            
+            // Display question
+            document.getElementById('studentQuestionNum').textContent = questionIndex + 1;
+            document.getElementById('studentQuestionTitle').textContent = question.text;
+            
+            // Handle media
+            if (question.image) {
+                document.getElementById('studentQuestionImageContainer').classList.remove('hidden');
+                document.getElementById('studentQuestionImg').src = question.image;
+            } else if (question.video) {
+                document.getElementById('studentQuestionImageContainer').classList.remove('hidden');
+                document.getElementById('studentQuestionImg').outerHTML = `
+                    <video id="studentQuestionImg" controls class="max-w-md mx-auto rounded-xl shadow-lg" autoplay muted>
+                        <source src="${question.video}" type="video/mp4">
+                        เบราว์เซอร์ไม่รองรับการเล่นวิดีโอ
+                    </video>
+                `;
+            } else {
+                document.getElementById('studentQuestionImageContainer').classList.add('hidden');
+            }
+            
+            // Display options
+            document.getElementById('studentOptA').textContent = question.options.A;
+            document.getElementById('studentOptB').textContent = question.options.B;
+            document.getElementById('studentOptC').textContent = question.options.C;
+            document.getElementById('studentOptD').textContent = question.options.D;
+            
+            // Reset answer selection
+            document.getElementById('studentAnswerSelected').classList.add('hidden');
+            document.querySelectorAll('#studentOptionsContainer button').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            });
+            
+            // Start timer if needed
+            if (question.timeLimit > 0) {
+                startStudentTimer(question.timeLimit);
+            } else {
+                document.getElementById('studentTimeRemaining').textContent = '';
+                document.getElementById('studentTimeProgress').style.width = '100%';
+            }
+        }
+        
+        function startStudentTimer(timeLimit) {
+            let timeLeft = timeLimit;
+            const timeElement = document.getElementById('studentTimeRemaining');
+            const progressElement = document.getElementById('studentTimeProgress');
+            
+            const timer = setInterval(() => {
+                timeElement.textContent = timeLeft + ' วินาที';
+                progressElement.style.width = (timeLeft / timeLimit * 100) + '%';
+                
+                if (timeLeft <= 10 && timeLeft > 0) {
+                    timeElement.classList.add('text-red-600', 'animate-pulse');
+                    progressElement.classList.add('bg-red-500');
+                    playTickSound();
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showStudentTimeUp();
+                }
+                
+                timeLeft--;
+            }, 1000);
+        }
+        
+        function selectAnswer(answer) {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            // Save answer
+            const answers = JSON.parse(localStorage.getItem(`answers_${currentGame.id}`) || '[]');
+            const gameState = JSON.parse(localStorage.getItem(`gameState_${currentGame.id}`) || '{}');
+            
+            // Remove any existing answer for this question
+            const filteredAnswers = answers.filter(a => !(a.studentId === currentStudent.id && a.questionIndex === gameState.questionIndex));
+            
+            // Add new answer
+            filteredAnswers.push({
+                studentId: currentStudent.id,
+                questionIndex: gameState.questionIndex,
+                answer: answer,
+                timestamp: Date.now()
+            });
+            
+            localStorage.setItem(`answers_${currentGame.id}`, JSON.stringify(filteredAnswers));
+            
+            // Show selected answer
+            document.getElementById('selectedAnswerDisplay').textContent = answer;
+            document.getElementById('studentAnswerSelected').classList.remove('hidden');
+            
+            // Disable all buttons
+            document.querySelectorAll('#studentOptionsContainer button').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            });
+            
+            isProcessing = false;
+        }
+        
+        function showStudentTimeUp() {
+            hideStudentScreens();
+            document.getElementById('studentTimeUp').classList.remove('hidden');
+        }
+        
+        function showStudentWaitingForAnswer() {
+            hideStudentScreens();
+            document.getElementById('studentWaiting').classList.remove('hidden');
+            
+            // Update waiting message
+            const waitingDiv = document.getElementById('studentWaiting');
+            const messageDiv = waitingDiv.querySelector('.text-gray-600');
+            if (messageDiv) {
+                messageDiv.textContent = 'รอดูเฉลยจากครู...';
+            }
+        }
+        
+        function showStudentAnswerResult(correctAnswer) {
+            hideStudentScreens();
+            document.getElementById('studentAnswerResult').classList.remove('hidden');
+            
+            // Get student's answer
+            const answers = JSON.parse(localStorage.getItem(`answers_${currentGame.id}`) || '[]');
+            const gameState = JSON.parse(localStorage.getItem(`gameState_${currentGame.id}`) || '{}');
+            const studentAnswer = answers.find(a => a.studentId === currentStudent.id && a.questionIndex === gameState.questionIndex);
+            
+            const isCorrect = studentAnswer && studentAnswer.answer === correctAnswer;
+            const question = questions[gameState.questionIndex];
+            
+            // Create result display
+            const resultContainer = document.getElementById('studentAnswerResult');
+            resultContainer.innerHTML = `
+                <div class="text-center">
+                    <div class="mb-6">
+                        <i class="fas ${isCorrect ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'} text-8xl bounce"></i>
+                    </div>
+                    <h2 class="text-4xl font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'} mb-4">
+                        ${isCorrect ? 'ถูกต้อง! 🎉' : 'ผิด! 😔'}
+                    </h2>
+                    <div class="bg-gray-50 p-6 rounded-xl mb-6">
+                        <div class="text-lg text-gray-700 mb-2">คำตอบที่ถูก:</div>
+                        <div class="text-3xl font-bold text-green-600">${correctAnswer}. ${question.options[correctAnswer]}</div>
+                        ${studentAnswer ? `
+                            <div class="mt-4 text-gray-600">
+                                คุณตอบ: <span class="font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}">${studentAnswer.answer}. ${question.options[studentAnswer.answer]}</span>
+                            </div>
+                        ` : `
+                            <div class="mt-4 text-gray-600">
+                                คุณไม่ได้ตอบคำถามนี้
+                            </div>
+                        `}
+                        ${isCorrect ? `
+                            <div class="mt-4 text-green-600 font-bold">
+                                +${question.score} คะแนน
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="text-gray-600">รอคำถามถัดไป...</div>
+                    <button onclick="showHome()" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl">
+                        <i class="fas fa-home mr-2"></i>หน้าแรก
+                    </button>
+                </div>
+            `;
+        }
+        
+        function showStudentWaitingForNext() {
+            hideStudentScreens();
+            document.getElementById('studentWaiting').classList.remove('hidden');
+            
+            // Update waiting message
+            const waitingDiv = document.getElementById('studentWaiting');
+            const messageDiv = waitingDiv.querySelector('.text-gray-600');
+            if (messageDiv) {
+                messageDiv.textContent = 'รอคำถามถัดไป...';
+            }
+        }
+        
+        function showStudentFinished() {
+            hideStudentScreens();
+            document.getElementById('studentFinished').classList.remove('hidden');
+        }
+        
+        function showStudentPaused() {
+            hideStudentScreens();
+            document.getElementById('studentPaused').classList.remove('hidden');
+        }
+        
+        function hideStudentScreens() {
+            document.getElementById('studentJoin').classList.add('hidden');
+            document.getElementById('studentWaiting').classList.add('hidden');
+            document.getElementById('studentQuestion').classList.add('hidden');
+            document.getElementById('studentCountdown').classList.add('hidden');
+            document.getElementById('studentTimeUp').classList.add('hidden');
+            document.getElementById('studentAnswerResult').classList.add('hidden');
+            document.getElementById('studentFinished').classList.add('hidden');
+            document.getElementById('studentPaused').classList.add('hidden');
+        }
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96cd1418168045be',t:'MTc1NDgwMzU4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
